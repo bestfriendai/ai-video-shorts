@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useThemeColors } from '../../src/contexts/ThemeContext';
 
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   const icons: Record<string, string> = {
@@ -18,16 +19,18 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const colors = useThemeColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { backgroundColor: colors.isDark ? 'rgba(26, 26, 46, 0.9)' : 'rgba(245, 245, 250, 0.9)' }],
         tabBarBackground: () => (
-          <BlurView intensity={80} style={StyleSheet.absoluteFill} />
+          <BlurView intensity={80} tint={colors.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
         ),
-        tabBarActiveTintColor: '#ff2d6a',
-        tabBarInactiveTintColor: '#8b8b9e',
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -66,7 +69,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    backgroundColor: 'rgba(26, 26, 46, 0.9)',
     borderTopWidth: 0,
     elevation: 0,
     height: 80,

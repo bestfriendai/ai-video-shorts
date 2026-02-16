@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useThemeColors } from '../src/contexts/ThemeContext';
 
 const editingTools = [
   { id: 'trim', emoji: '✂️', name: 'Trim', description: 'Cut start/end' },
@@ -39,6 +40,7 @@ export default function EditScreen() {
   const [trimEnd, setTrimEnd] = useState(100);
   const [videoSpeed, setVideoSpeed] = useState(1);
   const [hasChanges, setHasChanges] = useState(false);
+  const colors = useThemeColors();
 
   const handleToolSelect = (toolId: string) => {
     setSelectedTool(selectedTool === toolId ? null : toolId);
@@ -63,48 +65,48 @@ export default function EditScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>← Back</Text>
+            <Text style={[styles.backText, { color: colors.accent }]}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>✏️ Edit Video</Text>
+          <Text style={[styles.title, { color: colors.text }]}>✏️ Edit Video</Text>
           <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
-            <Text style={styles.resetText}>Reset</Text>
+            <Text style={[styles.resetText, { color: colors.textSecondary }]}>Reset</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.previewContainer}>
-          <View style={styles.preview}>
+          <View style={[styles.preview, { backgroundColor: colors.card }]}>
             <Text style={styles.previewEmoji}>🎬</Text>
-            <Text style={styles.previewText}>Video Preview</Text>
-            <Text style={styles.previewSubtext}>Tap a tool to start editing</Text>
+            <Text style={[styles.previewText, { color: colors.text }]}>Video Preview</Text>
+            <Text style={[styles.previewSubtext, { color: colors.textSecondary }]}>Tap a tool to start editing</Text>
           </View>
           
           <View style={styles.timeline}>
-            <View style={styles.timelineBar}>
+            <View style={[styles.timelineBar, { backgroundColor: colors.card }]}>
               <View style={[styles.timelineSelected, { left: `${trimStart}%`, width: `${trimEnd - trimStart}%` }]} />
             </View>
             <View style={styles.timelineLabels}>
-              <Text style={styles.timelineLabel}>{Math.floor(trimStart * 0.6)}s</Text>
-              <Text style={styles.timelineLabel}>{Math.floor(trimEnd * 0.6)}s</Text>
+              <Text style={[styles.timelineLabel, { color: colors.textSecondary }]}>{Math.floor(trimStart * 0.6)}s</Text>
+              <Text style={[styles.timelineLabel, { color: colors.textSecondary }]}>{Math.floor(trimEnd * 0.6)}s</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🛠️ Tools</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>🛠️ Tools</Text>
           <View style={styles.toolsGrid}>
             {editingTools.map((tool) => (
               <TouchableOpacity
                 key={tool.id}
-                style={[styles.toolCard, selectedTool === tool.id && styles.toolCardSelected]}
+                style={[styles.toolCard, { backgroundColor: colors.card }, selectedTool === tool.id && styles.toolCardSelected]}
                 onPress={() => handleToolSelect(tool.id)}
               >
                 <Text style={styles.toolEmoji}>{tool.emoji}</Text>
-                <Text style={styles.toolName}>{tool.name}</Text>
-                <Text style={styles.toolDesc}>{tool.description}</Text>
+                <Text style={[styles.toolName, { color: colors.text }]}>{tool.name}</Text>
+                <Text style={[styles.toolDesc, { color: colors.textSecondary }]}>{tool.description}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -112,20 +114,20 @@ export default function EditScreen() {
 
         {selectedTool === 'filter' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🎨 Filters</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>🎨 Filters</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.filterRow}>
                 {filters.map((filter) => (
                   <TouchableOpacity
                     key={filter.id}
-                    style={[styles.filterCard, selectedFilter === filter.id && styles.filterCardSelected]}
+                    style={styles.filterCard}
                     onPress={() => {
                       setSelectedFilter(filter.id);
                       setHasChanges(true);
                     }}
                   >
-                    <View style={[styles.filterPreview, filter.id !== 'none' && { backgroundColor: filter.id === 'vibrant' ? '#ff6b6b' : filter.id === 'warm' ? '#ffa500' : filter.id === 'cool' ? '#4ecdc4' : filter.id === 'noir' ? '#333' : '#d4a574' }]} />
-                    <Text style={[styles.filterName, selectedFilter === filter.id && styles.filterNameSelected]}>{filter.name}</Text>
+                    <View style={[styles.filterPreview, { backgroundColor: colors.card }, filter.id !== 'none' && { backgroundColor: filter.id === 'vibrant' ? '#ff6b6b' : filter.id === 'warm' ? '#ffa500' : filter.id === 'cool' ? '#4ecdc4' : filter.id === 'noir' ? '#333' : '#d4a574' }]} />
+                    <Text style={[styles.filterName, { color: colors.textSecondary }, selectedFilter === filter.id && styles.filterNameSelected]}>{filter.name}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -135,19 +137,19 @@ export default function EditScreen() {
 
         {selectedTool === 'music' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🎵 Background Music</Text>
-            <View style={styles.musicList}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>🎵 Background Music</Text>
+            <View style={[styles.musicList, { backgroundColor: colors.card }]}>
               {musicOptions.map((music) => (
                 <TouchableOpacity
                   key={music.id}
-                  style={[styles.musicItem, selectedMusic === music.id && styles.musicItemSelected]}
+                  style={[styles.musicItem, { borderBottomColor: colors.border }, selectedMusic === music.id && styles.musicItemSelected]}
                   onPress={() => {
                     setSelectedMusic(music.id);
                     setHasChanges(true);
                   }}
                 >
                   <Text style={styles.musicEmoji}>{music.emoji}</Text>
-                  <Text style={styles.musicName}>{music.name}</Text>
+                  <Text style={[styles.musicName, { color: colors.text }]}>{music.name}</Text>
                   {selectedMusic === music.id && <Text style={styles.musicCheck}>✓</Text>}
                 </TouchableOpacity>
               ))}
@@ -157,18 +159,18 @@ export default function EditScreen() {
 
         {selectedTool === 'speed' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>⚡ Speed</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>⚡ Speed</Text>
             <View style={styles.speedRow}>
               {[0.5, 1, 1.5, 2].map((speed) => (
                 <TouchableOpacity
                   key={speed}
-                  style={[styles.speedButton, videoSpeed === speed && styles.speedButtonSelected]}
+                  style={[styles.speedButton, { backgroundColor: colors.card }, videoSpeed === speed && styles.speedButtonSelected]}
                   onPress={() => {
                     setVideoSpeed(speed);
                     setHasChanges(true);
                   }}
                 >
-                  <Text style={[styles.speedText, videoSpeed === speed && styles.speedTextSelected]}>{speed}x</Text>
+                  <Text style={[styles.speedText, { color: colors.text }, videoSpeed === speed && styles.speedTextSelected]}>{speed}x</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -177,18 +179,18 @@ export default function EditScreen() {
 
         {selectedTool === 'trim' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>✂️ Trim Video</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>✂️ Trim Video</Text>
             <View style={styles.trimInfo}>
-              <Text style={styles.trimText}>Start: {Math.floor(trimStart * 0.6)}s</Text>
-              <Text style={styles.trimText}>End: {Math.floor(trimEnd * 0.6)}s</Text>
-              <Text style={styles.trimText}>Duration: {Math.floor((trimEnd - trimStart) * 0.6)}s</Text>
+              <Text style={[styles.trimText, { color: colors.textSecondary }]}>Start: {Math.floor(trimStart * 0.6)}s</Text>
+              <Text style={[styles.trimText, { color: colors.textSecondary }]}>End: {Math.floor(trimEnd * 0.6)}s</Text>
+              <Text style={[styles.trimText, { color: colors.textSecondary }]}>Duration: {Math.floor((trimEnd - trimStart) * 0.6)}s</Text>
             </View>
             <View style={styles.trimButtons}>
-              <TouchableOpacity style={styles.trimButton} onPress={() => setTrimStart(Math.max(0, trimStart - 5))}>
-                <Text style={styles.trimButtonText}>- Start</Text>
+              <TouchableOpacity style={[styles.trimButton, { backgroundColor: colors.card }]} onPress={() => setTrimStart(Math.max(0, trimStart - 5))}>
+                <Text style={[styles.trimButtonText, { color: colors.text }]}>- Start</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.trimButton} onPress={() => setTrimEnd(Math.min(100, trimEnd + 5))}>
-                <Text style={styles.trimButtonText}>+ End</Text>
+              <TouchableOpacity style={[styles.trimButton, { backgroundColor: colors.card }]} onPress={() => setTrimEnd(Math.min(100, trimEnd + 5))}>
+                <Text style={[styles.trimButtonText, { color: colors.text }]}>+ End</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -196,16 +198,16 @@ export default function EditScreen() {
 
         {selectedTool === 'volume' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>🔊 Volume</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>🔊 Volume</Text>
             <View style={styles.volumeSlider}>
-              <Text style={styles.volumeLabel}>Original Audio</Text>
-              <View style={styles.volumeBar}>
+              <Text style={[styles.volumeLabel, { color: colors.text }]}>Original Audio</Text>
+              <View style={[styles.volumeBar, { backgroundColor: colors.card }]}>
                 <View style={[styles.volumeFill, { width: '80%' }]} />
               </View>
             </View>
             <View style={styles.volumeSlider}>
-              <Text style={styles.volumeLabel}>Music</Text>
-              <View style={styles.volumeBar}>
+              <Text style={[styles.volumeLabel, { color: colors.text }]}>Music</Text>
+              <View style={[styles.volumeBar, { backgroundColor: colors.card }]}>
                 <View style={[styles.volumeFill, { width: '50%' }]} />
               </View>
             </View>
@@ -214,19 +216,19 @@ export default function EditScreen() {
 
         {selectedTool === 'text' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>📝 Add Text</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>📝 Add Text</Text>
             <View style={styles.textOptions}>
-              <TouchableOpacity style={styles.textOption}>
+              <TouchableOpacity style={[styles.textOption, { backgroundColor: colors.card }]}>
                 <Text style={styles.textOptionEmoji}>Aa</Text>
-                <Text style={styles.textOptionName}>Title</Text>
+                <Text style={[styles.textOptionName, { color: colors.text }]}>Title</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.textOption}>
+              <TouchableOpacity style={[styles.textOption, { backgroundColor: colors.card }]}>
                 <Text style={styles.textOptionEmoji}>caption</Text>
-                <Text style={styles.textOptionName}>Caption</Text>
+                <Text style={[styles.textOptionName, { color: colors.text }]}>Caption</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.textOption}>
+              <TouchableOpacity style={[styles.textOption, { backgroundColor: colors.card }]}>
                 <Text style={styles.textOptionEmoji}>💬</Text>
-                <Text style={styles.textOptionName}>Sticker</Text>
+                <Text style={[styles.textOptionName, { color: colors.text }]}>Sticker</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -251,61 +253,60 @@ export default function EditScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
+  container: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 10 },
   backButton: { padding: 8 },
-  backText: { color: '#ff2d6a', fontSize: 16 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
+  backText: { fontSize: 16 },
+  title: { fontSize: 20, fontWeight: 'bold' },
   resetButton: { padding: 8 },
-  resetText: { color: '#8b8b9e', fontSize: 14 },
+  resetText: { fontSize: 14 },
   previewContainer: { paddingHorizontal: 20, marginBottom: 20 },
-  preview: { height: 200, backgroundColor: '#252542', borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
+  preview: { height: 200, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   previewEmoji: { fontSize: 48, marginBottom: 8 },
-  previewText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  previewSubtext: { color: '#8b8b9e', fontSize: 12, marginTop: 4 },
+  previewText: { fontSize: 16, fontWeight: '600' },
+  previewSubtext: { fontSize: 12, marginTop: 4 },
   timeline: { marginTop: 12 },
-  timelineBar: { height: 4, backgroundColor: '#252542', borderRadius: 2, position: 'relative' },
+  timelineBar: { height: 4, borderRadius: 2, position: 'relative' },
   timelineSelected: { position: 'absolute', height: '100%', backgroundColor: '#ff2d6a', borderRadius: 2 },
   timelineLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  timelineLabel: { color: '#8b8b9e', fontSize: 11 },
+  timelineLabel: { fontSize: 11 },
   section: { marginBottom: 24, paddingHorizontal: 20 },
-  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
   toolsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  toolCard: { width: '30%', backgroundColor: '#252542', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
+  toolCard: { width: '30%', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
   toolCardSelected: { borderColor: '#ff2d6a', backgroundColor: 'rgba(255, 45, 106, 0.1)' },
   toolEmoji: { fontSize: 28, marginBottom: 8 },
-  toolName: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  toolDesc: { color: '#8b8b9e', fontSize: 10, marginTop: 2, textAlign: 'center' },
+  toolName: { fontSize: 13, fontWeight: '600' },
+  toolDesc: { fontSize: 10, marginTop: 2, textAlign: 'center' },
   filterRow: { flexDirection: 'row', gap: 12, paddingRight: 20 },
   filterCard: { alignItems: 'center', padding: 8 },
-  filterCardSelected: {},
-  filterPreview: { width: 60, height: 60, borderRadius: 12, backgroundColor: '#252542', marginBottom: 8 },
-  filterName: { color: '#8b8b9e', fontSize: 12 },
+  filterPreview: { width: 60, height: 60, borderRadius: 12, marginBottom: 8 },
+  filterName: { fontSize: 12 },
   filterNameSelected: { color: '#ff2d6a', fontWeight: '600' },
-  musicList: { backgroundColor: '#252542', borderRadius: 16, overflow: 'hidden' },
-  musicItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1a1a2e' },
+  musicList: { borderRadius: 16, overflow: 'hidden' },
+  musicItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1 },
   musicItemSelected: { backgroundColor: 'rgba(255, 45, 106, 0.1)' },
   musicEmoji: { fontSize: 24, marginRight: 12 },
-  musicName: { color: '#fff', fontSize: 15, flex: 1 },
+  musicName: { fontSize: 15, flex: 1 },
   musicCheck: { color: '#ff2d6a', fontSize: 18, fontWeight: 'bold' },
   speedRow: { flexDirection: 'row', gap: 12 },
-  speedButton: { flex: 1, backgroundColor: '#252542', borderRadius: 12, padding: 16, alignItems: 'center' },
+  speedButton: { flex: 1, borderRadius: 12, padding: 16, alignItems: 'center' },
   speedButtonSelected: { backgroundColor: '#ff2d6a' },
-  speedText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  speedText: { fontSize: 16, fontWeight: '600' },
   speedTextSelected: { color: '#fff' },
   trimInfo: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  trimText: { color: '#8b8b9e', fontSize: 14 },
+  trimText: { fontSize: 14 },
   trimButtons: { flexDirection: 'row', gap: 12 },
-  trimButton: { flex: 1, backgroundColor: '#252542', borderRadius: 12, padding: 14, alignItems: 'center' },
-  trimButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  trimButton: { flex: 1, borderRadius: 12, padding: 14, alignItems: 'center' },
+  trimButtonText: { fontSize: 14, fontWeight: '600' },
   volumeSlider: { marginBottom: 16 },
-  volumeLabel: { color: '#fff', fontSize: 14, marginBottom: 8 },
-  volumeBar: { height: 8, backgroundColor: '#252542', borderRadius: 4 },
+  volumeLabel: { fontSize: 14, marginBottom: 8 },
+  volumeBar: { height: 8, borderRadius: 4 },
   volumeFill: { height: '100%', backgroundColor: '#ff2d6a', borderRadius: 4 },
   textOptions: { flexDirection: 'row', gap: 12 },
-  textOption: { flex: 1, backgroundColor: '#252542', borderRadius: 16, padding: 20, alignItems: 'center' },
+  textOption: { flex: 1, borderRadius: 16, padding: 20, alignItems: 'center' },
   textOptionEmoji: { fontSize: 32, marginBottom: 8 },
-  textOptionName: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  textOptionName: { fontSize: 13, fontWeight: '600' },
   actions: { padding: 20, paddingBottom: 40, gap: 12 },
   saveButton: { paddingVertical: 18, borderRadius: 16, alignItems: 'center', marginBottom: 12 },
   saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },

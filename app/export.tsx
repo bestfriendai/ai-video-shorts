@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useRevenueCat } from '../src/services/purchases';
+import { useThemeColors } from '../src/contexts/ThemeContext';
 
 const exportFormats = [
   { id: 'tiktok', name: 'TikTok', emoji: '🎵', resolution: '1080x1920', ratio: '9:16', duration: '15-60s' },
@@ -25,6 +26,7 @@ export default function ExportScreen() {
   const [selectedQuality, setSelectedQuality] = useState('sd');
   const [isExporting, setIsExporting] = useState(false);
   const [watermark, setWatermark] = useState(!isProMember);
+  const colors = useThemeColors();
 
   const format = exportFormats.find((f) => f.id === selectedFormat);
   const quality = qualityOptions.find((q) => q.id === selectedQuality);
@@ -87,13 +89,13 @@ export default function ExportScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>← Back</Text>
+            <Text style={[styles.backText, { color: colors.accent }]}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>📤 Export</Text>
+          <Text style={[styles.title, { color: colors.text }]}>📤 Export</Text>
           {!isProMember && (
             <TouchableOpacity onPress={() => router.push('/paywall')} style={styles.proChip}>
               <Text style={styles.proChipText}>⭐ PRO</Text>
@@ -108,19 +110,19 @@ export default function ExportScreen() {
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📱 Export Format</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>📱 Export Format</Text>
           <View style={styles.formatGrid}>
             {exportFormats.map((fmt) => (
               <TouchableOpacity
                 key={fmt.id}
-                style={[styles.formatCard, selectedFormat === fmt.id && styles.formatCardSelected]}
+                style={[styles.formatCard, { backgroundColor: colors.card }, selectedFormat === fmt.id && styles.formatCardSelected]}
                 onPress={() => setSelectedFormat(fmt.id)}
               >
                 <Text style={styles.formatEmoji}>{fmt.emoji}</Text>
-                <Text style={styles.formatName}>{fmt.name}</Text>
-                <Text style={styles.formatRes}>{fmt.resolution}</Text>
-                <View style={styles.formatBadge}>
-                  <Text style={styles.formatBadgeText}>{fmt.ratio}</Text>
+                <Text style={[styles.formatName, { color: colors.text }]}>{fmt.name}</Text>
+                <Text style={[styles.formatRes, { color: colors.textSecondary }]}>{fmt.resolution}</Text>
+                <View style={[styles.formatBadge, { backgroundColor: colors.background }]}>
+                  <Text style={[styles.formatBadgeText, { color: colors.textSecondary }]}>{fmt.ratio}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -128,24 +130,24 @@ export default function ExportScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🎬 Quality</Text>
-          <View style={styles.qualityList}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>🎬 Quality</Text>
+          <View style={[styles.qualityList, { backgroundColor: colors.card }]}>
             {qualityOptions.map((q) => (
               <TouchableOpacity
                 key={q.id}
-                style={[styles.qualityItem, selectedQuality === q.id && styles.qualityItemSelected]}
+                style={[styles.qualityItem, { borderBottomColor: colors.border }, selectedQuality === q.id && styles.qualityItemSelected]}
                 onPress={() => handleQualitySelect(q.id)}
               >
                 <View style={styles.qualityInfo}>
                   <View style={styles.qualityHeader}>
-                    <Text style={styles.qualityName}>{q.name}</Text>
+                    <Text style={[styles.qualityName, { color: colors.text }]}>{q.name}</Text>
                     {q.badge === 'PRO' && (
                       <View style={[styles.proBadge, !isProMember && styles.proBadgeLocked]}>
                         <Text style={styles.proBadgeText}>{isProMember ? 'PRO' : '🔒 PRO'}</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={styles.qualitySize}>{q.size}</Text>
+                  <Text style={[styles.qualitySize, { color: colors.textSecondary }]}>{q.size}</Text>
                 </View>
                 {selectedQuality === q.id && <Text style={styles.qualityCheck}>✓</Text>}
               </TouchableOpacity>
@@ -154,27 +156,27 @@ export default function ExportScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>⚙️ Options</Text>
-          <View style={styles.optionsCard}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>⚙️ Options</Text>
+          <View style={[styles.optionsCard, { backgroundColor: colors.card }]}>
             <View style={styles.optionRow}>
               <View style={styles.optionInfo}>
-                <Text style={styles.optionName}>Remove Watermark {!isProMember && '🔒'}</Text>
-                <Text style={styles.optionDesc}>Remove ReelMint watermark</Text>
+                <Text style={[styles.optionName, { color: colors.text }]}>Remove Watermark {!isProMember && '🔒'}</Text>
+                <Text style={[styles.optionDesc, { color: colors.textSecondary }]}>Remove ReelMint watermark</Text>
               </View>
               <TouchableOpacity
-                style={[styles.toggle, !watermark && styles.toggleOn]}
+                style={[styles.toggle, { backgroundColor: colors.background }, !watermark && styles.toggleOn]}
                 onPress={handleWatermarkToggle}
               >
                 <View style={[styles.toggleThumb, !watermark && styles.toggleThumbOn]} />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             <View style={styles.optionRow}>
               <View style={styles.optionInfo}>
-                <Text style={styles.optionName}>Add to Gallery</Text>
-                <Text style={styles.optionDesc}>Save to your device automatically</Text>
+                <Text style={[styles.optionName, { color: colors.text }]}>Add to Gallery</Text>
+                <Text style={[styles.optionDesc, { color: colors.textSecondary }]}>Save to your device automatically</Text>
               </View>
               <TouchableOpacity style={[styles.toggle, styles.toggleOn]}>
                 <View style={[styles.toggleThumb, styles.toggleThumbOn]} />
@@ -184,23 +186,23 @@ export default function ExportScreen() {
         </View>
 
         <View style={styles.summary}>
-          <Text style={styles.summaryTitle}>📋 Export Summary</Text>
-          <View style={styles.summaryCard}>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>📋 Export Summary</Text>
+          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Format</Text>
-              <Text style={styles.summaryValue}>{format?.name}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Format</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{format?.name}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Resolution</Text>
-              <Text style={styles.summaryValue}>{format?.resolution}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Resolution</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{format?.resolution}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Quality</Text>
-              <Text style={styles.summaryValue}>{quality?.name}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Quality</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{quality?.name}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Watermark</Text>
-              <Text style={styles.summaryValue}>{watermark ? 'Included' : 'Removed'}</Text>
+              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Watermark</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{watermark ? 'Included' : 'Removed'}</Text>
             </View>
           </View>
         </View>
@@ -231,52 +233,52 @@ export default function ExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
+  container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', padding: 20, paddingTop: 10 },
   backButton: { marginRight: 16 },
-  backText: { color: '#ff2d6a', fontSize: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff', flex: 1 },
+  backText: { fontSize: 16 },
+  title: { fontSize: 24, fontWeight: 'bold', flex: 1 },
   proChip: { backgroundColor: 'rgba(251,191,36,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   proChipText: { color: '#fbbf24', fontSize: 12, fontWeight: '700' },
   limitBanner: { backgroundColor: 'rgba(239,68,68,0.15)', marginHorizontal: 20, padding: 12, borderRadius: 12, marginBottom: 12 },
   limitText: { color: '#ef4444', fontSize: 13, fontWeight: '600', textAlign: 'center' },
   section: { marginBottom: 24, paddingHorizontal: 20 },
-  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
   formatGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  formatCard: { width: '30%', backgroundColor: '#252542', borderRadius: 16, padding: 12, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
+  formatCard: { width: '30%', borderRadius: 16, padding: 12, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
   formatCardSelected: { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)' },
   formatEmoji: { fontSize: 28, marginBottom: 4 },
-  formatName: { color: '#fff', fontSize: 11, fontWeight: '600', textAlign: 'center' },
-  formatRes: { color: '#8b8b9e', fontSize: 9, marginTop: 2 },
-  formatBadge: { backgroundColor: '#1a1a2e', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, marginTop: 4 },
-  formatBadgeText: { color: '#8b8b9e', fontSize: 9 },
-  qualityList: { backgroundColor: '#252542', borderRadius: 16, overflow: 'hidden' },
-  qualityItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1a1a2e' },
+  formatName: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  formatRes: { fontSize: 9, marginTop: 2 },
+  formatBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, marginTop: 4 },
+  formatBadgeText: { fontSize: 9 },
+  qualityList: { borderRadius: 16, overflow: 'hidden' },
+  qualityItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1 },
   qualityItemSelected: { backgroundColor: 'rgba(34, 197, 94, 0.1)' },
   qualityInfo: { flex: 1 },
   qualityHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  qualityName: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  qualityName: { fontSize: 15, fontWeight: '600' },
   proBadge: { backgroundColor: '#fbbf24', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
   proBadgeLocked: { backgroundColor: '#555' },
   proBadgeText: { color: '#1a1a2e', fontSize: 10, fontWeight: 'bold' },
-  qualitySize: { color: '#8b8b9e', fontSize: 12, marginTop: 2 },
+  qualitySize: { fontSize: 12, marginTop: 2 },
   qualityCheck: { color: '#22c55e', fontSize: 18, fontWeight: 'bold' },
-  optionsCard: { backgroundColor: '#252542', borderRadius: 16, padding: 4 },
+  optionsCard: { borderRadius: 16, padding: 4 },
   optionRow: { flexDirection: 'row', alignItems: 'center', padding: 12 },
   optionInfo: { flex: 1 },
-  optionName: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  optionDesc: { color: '#8b8b9e', fontSize: 12, marginTop: 2 },
-  divider: { height: 1, backgroundColor: '#1a1a2e', marginHorizontal: 12 },
-  toggle: { width: 50, height: 30, borderRadius: 15, backgroundColor: '#1a1a2e', padding: 2, justifyContent: 'center' },
+  optionName: { fontSize: 15, fontWeight: '600' },
+  optionDesc: { fontSize: 12, marginTop: 2 },
+  divider: { height: 1, marginHorizontal: 12 },
+  toggle: { width: 50, height: 30, borderRadius: 15, padding: 2, justifyContent: 'center' },
   toggleOn: { backgroundColor: '#22c55e' },
   toggleThumb: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#fff' },
   toggleThumbOn: { alignSelf: 'flex-end' },
   summary: { paddingHorizontal: 20, marginBottom: 24 },
-  summaryTitle: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 12 },
-  summaryCard: { backgroundColor: '#252542', borderRadius: 16, padding: 16 },
+  summaryTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  summaryCard: { borderRadius: 16, padding: 16 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  summaryLabel: { color: '#8b8b9e', fontSize: 14 },
-  summaryValue: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  summaryLabel: { fontSize: 14 },
+  summaryValue: { fontSize: 14, fontWeight: '600' },
   actions: { padding: 20, paddingBottom: 40, gap: 12 },
   exportButton: { paddingVertical: 18, borderRadius: 16, alignItems: 'center' },
   exportText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },

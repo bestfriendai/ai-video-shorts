@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRevenueCat } from '../../src/services/purchases';
 import { addProject, getProjects } from '../../src/services/projects';
 import { router } from 'expo-router';
+import { useThemeColors } from '../../src/contexts/ThemeContext';
 
 const styleTemplates = [
   { id: '1', name: 'Dance Trend', emoji: '💃', category: 'Trending' },
@@ -18,6 +19,7 @@ export default function CreateScreen() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { isProMember } = useRevenueCat();
+  const colors = useThemeColors();
 
   const handleGenerate = async () => {
     if (!prompt.trim() && !selectedTemplate) {
@@ -50,19 +52,19 @@ export default function CreateScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>✨ Create Video</Text>
-          <Text style={styles.subtitle}>Turn your ideas into short videos</Text>
+          <Text style={[styles.title, { color: colors.text }]}>✨ Create Video</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Turn your ideas into short videos</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📝 Describe Your Video</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>📝 Describe Your Video</Text>
           <TextInput
-            style={styles.promptInput}
+            style={[styles.promptInput, { backgroundColor: colors.card, color: colors.text }]}
             placeholder="E.g., A person dancing in neon lights..."
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.textSecondary}
             multiline
             numberOfLines={4}
             value={prompt}
@@ -71,17 +73,17 @@ export default function CreateScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 Or Choose a Template</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>📋 Or Choose a Template</Text>
           <View style={styles.templatesGrid}>
             {styleTemplates.map((template) => (
               <TouchableOpacity
                 key={template.id}
-                style={[styles.templateCard, selectedTemplate === template.id && styles.templateCardSelected]}
+                style={[styles.templateCard, { backgroundColor: colors.card }, selectedTemplate === template.id && styles.templateCardSelected]}
                 onPress={() => setSelectedTemplate(template.id)}
               >
                 <Text style={styles.templateEmoji}>{template.emoji}</Text>
-                <Text style={styles.templateName}>{template.name}</Text>
-                <Text style={styles.templateCategory}>{template.category}</Text>
+                <Text style={[styles.templateName, { color: colors.text }]}>{template.name}</Text>
+                <Text style={[styles.templateCategory, { color: colors.textSecondary }]}>{template.category}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -100,19 +102,19 @@ export default function CreateScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
+  container: { flex: 1 },
   header: { padding: 20, paddingTop: 10 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#fff' },
-  subtitle: { color: '#8b8b9e', fontSize: 14, marginTop: 4 },
+  title: { fontSize: 28, fontWeight: 'bold' },
+  subtitle: { fontSize: 14, marginTop: 4 },
   section: { marginBottom: 24, paddingHorizontal: 20 },
-  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 12 },
-  promptInput: { backgroundColor: '#252542', borderRadius: 16, padding: 16, color: '#fff', fontSize: 15, minHeight: 120, textAlignVertical: 'top' },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
+  promptInput: { borderRadius: 16, padding: 16, fontSize: 15, minHeight: 120, textAlignVertical: 'top' },
   templatesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  templateCard: { width: '47%', backgroundColor: '#252542', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
+  templateCard: { width: '47%', borderRadius: 16, padding: 16, alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
   templateCardSelected: { borderColor: '#ff2d6a', backgroundColor: 'rgba(255, 45, 106, 0.1)' },
   templateEmoji: { fontSize: 32, marginBottom: 8 },
-  templateName: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  templateCategory: { color: '#8b8b9e', fontSize: 11, marginTop: 2 },
+  templateName: { fontSize: 14, fontWeight: '600' },
+  templateCategory: { fontSize: 11, marginTop: 2 },
   generateContainer: { padding: 20, paddingBottom: 40 },
   generateButton: { paddingVertical: 18, borderRadius: 16, alignItems: 'center' },
   generateText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
