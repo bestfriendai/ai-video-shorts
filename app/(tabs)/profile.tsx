@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRevenueCat } from '../../src/services/purchases';
 import { router } from 'expo-router';
@@ -50,6 +50,15 @@ export default function ProfileScreen() {
             <View style={styles.progressBar}><View style={[styles.progressFill, { width: `${progressPercent}%` }]} /></View>
           </View>
         </View>
+        <View style={styles.legalSection}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://reelmint.app/terms')}>
+            <Text style={styles.legalLink}>Terms of Use</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL('https://reelmint.app/privacy')}>
+            <Text style={styles.legalLink}>Privacy Policy</Text>
+          </TouchableOpacity>
+          <Text style={styles.versionText}>ReelMint v1.0.0</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -76,4 +85,7 @@ const styles = StyleSheet.create({
   usageValue: { color: '#ff2d6a', fontSize: 14, fontWeight: '600' },
   progressBar: { height: 8, backgroundColor: '#1a1a2e', borderRadius: 4, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: '#ff2d6a', borderRadius: 4 },
+  legalSection: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 20, gap: 12 },
+  legalLink: { color: '#8b8b9e', fontSize: 14, textDecorationLine: 'underline' },
+  versionText: { color: '#555', fontSize: 12, marginTop: 8 },
 });

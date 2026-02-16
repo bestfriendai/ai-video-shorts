@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useRevenueCat } from '../src/services/purchases';
 
 const exportFormats = [
   { id: 'tiktok', name: 'TikTok', emoji: '🎵', resolution: '1080x1920', ratio: '9:16', duration: '15-60s' },
@@ -19,27 +20,56 @@ const qualityOptions = [
 ];
 
 export default function ExportScreen() {
+  const { isProMember, canExport, incrementExport } = useRevenueCat();
   const [selectedFormat, setSelectedFormat] = useState('tiktok');
   const [selectedQuality, setSelectedQuality] = useState('sd');
   const [isExporting, setIsExporting] = useState(false);
-  const [watermark, setWatermark] = useState(true);
+  const [watermark, setWatermark] = useState(!isProMember);
 
   const format = exportFormats.find((f) => f.id === selectedFormat);
   const quality = qualityOptions.find((q) => q.id === selectedQuality);
 
-  const handleExport = () => {
-    if (quality?.badge === 'PRO' && selectedQuality !== 'sd') {
-      Alert.alert('PRO Feature', 'HD and 4K exports are available for PRO members. Upgrade to export in higher quality!', [
+  const handleQualitySelect = (id: string) => {
+    const q = qualityOptions.find((o) => o.id === id);
+    if (q?.badge === 'PRO' && !isProMember) {
+      Alert.alert('PRO Feature', 'HD and 4K exports are available for PRO members.', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Upgrade', onPress: () => router.push('/paywall') },
       ]);
       return;
     }
+    setSelectedQuality(id);
+  };
+
+  const handleWatermarkToggle = () => {
+    if (!isProMember && watermark) {
+      Alert.alert('PRO Feature', 'Watermark removal is a PRO feature.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Upgrade', onPress: () => router.push('/paywall') },
+      ]);
+      return;
+    }
+    setWatermark(!watermark);
+  };
+
+  const handleExport = () => {
+    if (!canExport) {
+      Alert.alert(
+        'Export Limit Reached',
+        'Free accounts get 2 exports per month. Upgrade to PRO for unlimited exports!',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Upgrade', onPress: () => router.push('/paywall') },
+        ]
+      );
+      return;
+    }
 
     setIsExporting(true);
-    
+
     setTimeout(() => {
       setIsExporting(false);
+      incrementExport();
       Alert.alert('Export Complete! 🎉', 'Your video has been exported successfully.', [
         { text: 'Share', onPress: () => {} },
         { text: 'Done', onPress: () => router.push('/') },
@@ -64,7 +94,18 @@ export default function ExportScreen() {
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
           <Text style={styles.title}>📤 Export</Text>
+          {!isProMember && (
+            <TouchableOpacity onPress={() => router.push('/paywall')} style={styles.proChip}>
+              <Text style={styles.proChipText}>⭐ PRO</Text>
+            </TouchableOpacity>
+          )}
         </View>
+
+        {!canExport && (
+          <TouchableOpacity style={styles.limitBanner} onPress={() => router.push('/paywall')}>
+            <Text style={styles.limitText}>⚠️ Export limit reached · Upgrade for unlimited</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📱 Export Format</Text>
@@ -93,22 +134,20 @@ export default function ExportScreen() {
               <TouchableOpacity
                 key={q.id}
                 style={[styles.qualityItem, selectedQuality === q.id && styles.qualityItemSelected]}
-                onPress={() => setSelectedQuality(q.id)}
+                onPress={() => handleQualitySelect(q.id)}
               >
                 <View style={styles.qualityInfo}>
                   <View style={styles.qualityHeader}>
                     <Text style={styles.qualityName}>{q.name}</Text>
                     {q.badge === 'PRO' && (
-                      <View style={styles.proBadge}>
-                        <Text style={styles.proBadgeText}>PRO</Text>
+                      <View style={[styles.proBadge, !isProMember && styles.proBadgeLocked]}>
+                        <Text style={styles.proBadgeText}>{isProMember ? 'PRO' : '🔒 PRO'}</Text>
                       </View>
                     )}
                   </View>
                   <Text style={styles.qualitySize}>{q.size}</Text>
                 </View>
-                {selectedQuality === q.id && (
-                  <Text style={styles.qualityCheck}>✓</Text>
-                )}
+                {selectedQuality === q.id && <Text style={styles.qualityCheck}>✓</Text>}
               </TouchableOpacity>
             ))}
           </View>
@@ -119,19 +158,19 @@ export default function ExportScreen() {
           <View style={styles.optionsCard}>
             <View style={styles.optionRow}>
               <View style={styles.optionInfo}>
-                <Text style={styles.optionName}>Remove Watermark</Text>
-                <Text style={styles.optionDesc}>Remove AI Video Shorts watermark</Text>
+                <Text style={styles.optionName}>Remove Watermark {!isProMember && '🔒'}</Text>
+                <Text style={styles.optionDesc}>Remove ReelMint watermark</Text>
               </View>
-              <TouchableOpacity 
-                style={[styles.toggle, watermark && styles.toggleOn]}
-                onPress={() => setWatermark(!watermark)}
+              <TouchableOpacity
+                style={[styles.toggle, !watermark && styles.toggleOn]}
+                onPress={handleWatermarkToggle}
               >
-                <View style={[styles.toggleThumb, watermark && styles.toggleThumbOn]} />
+                <View style={[styles.toggleThumb, !watermark && styles.toggleThumbOn]} />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.divider} />
-            
+
             <View style={styles.optionRow}>
               <View style={styles.optionInfo}>
                 <Text style={styles.optionName}>Add to Gallery</Text>
@@ -168,13 +207,18 @@ export default function ExportScreen() {
 
         <View style={styles.actions}>
           <TouchableOpacity onPress={handleExport} disabled={isExporting}>
-            <LinearGradient colors={isExporting ? ['#666', '#444'] : ['#22c55e', '#16a34a']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.exportButton}>
+            <LinearGradient
+              colors={isExporting ? ['#666', '#444'] : !canExport ? ['#444', '#333'] : ['#22c55e', '#16a34a']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.exportButton}
+            >
               <Text style={styles.exportText}>
-                {isExporting ? '⏳ Exporting...' : '📤 Export Video'}
+                {isExporting ? '⏳ Exporting...' : !canExport ? '🔒 Upgrade to Export' : '📤 Export Video'}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
-          
+
           <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
             <LinearGradient colors={['#ff2d6a', '#8b5cf6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.shareGradient}>
               <Text style={styles.shareText}>📲 Share</Text>
@@ -191,7 +235,11 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', padding: 20, paddingTop: 10 },
   backButton: { marginRight: 16 },
   backText: { color: '#ff2d6a', fontSize: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#fff', flex: 1 },
+  proChip: { backgroundColor: 'rgba(251,191,36,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  proChipText: { color: '#fbbf24', fontSize: 12, fontWeight: '700' },
+  limitBanner: { backgroundColor: 'rgba(239,68,68,0.15)', marginHorizontal: 20, padding: 12, borderRadius: 12, marginBottom: 12 },
+  limitText: { color: '#ef4444', fontSize: 13, fontWeight: '600', textAlign: 'center' },
   section: { marginBottom: 24, paddingHorizontal: 20 },
   sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 12 },
   formatGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
@@ -209,6 +257,7 @@ const styles = StyleSheet.create({
   qualityHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   qualityName: { color: '#fff', fontSize: 15, fontWeight: '600' },
   proBadge: { backgroundColor: '#fbbf24', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+  proBadgeLocked: { backgroundColor: '#555' },
   proBadgeText: { color: '#1a1a2e', fontSize: 10, fontWeight: 'bold' },
   qualitySize: { color: '#8b8b9e', fontSize: 12, marginTop: 2 },
   qualityCheck: { color: '#22c55e', fontSize: 18, fontWeight: 'bold' },

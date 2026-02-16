@@ -21,7 +21,7 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <LinearGradient colors={['#ff2d6a', '#8b5cf6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.logoContainer}>
-            <Text style={styles.logoText}>AI Video Shorts</Text>
+            <Text style={styles.logoText}>ReelMint</Text>
           </LinearGradient>
           <Text style={styles.subtitle}>Create viral TikToks & Reels with AI</Text>
         </View>
